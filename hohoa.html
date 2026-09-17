@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Donation - MeloxCraft</title>
+    <style>
+        /* --- CSS Variables & Reset --- */
+        :root {
+            --bg-dark: #0a0f14;
+            --bg-card: #1a2027;
+            --bg-input: #12161b;
+            --accent-green: #50c47b;
+            --accent-green-hover: #43a868;
+            --accent-blue: #3b82f6;
+            --text-main: #ffffff;
+            --text-muted: #9ca3af;
+            --border-color: #2d3742;
+            --radius: 12px;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.15);
+            --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background: linear-gradient(180deg, #0f1c15 0%, #000000 100%);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+        }
+
+        /* --- Top Bar --- */
+        .top-bar {
+            width: 100%;
+            height: 48px;
+            background: var(--accent-green);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            z-index: 100;
+        }
+
+        .top-bar h1 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            color: #fff;
+            text-transform: uppercase;
+        }
+
+        /* --- Main Container --- */
+        .container {
+            width: 100%;
+            max-width: 480px;
+            padding: 16px;
+            flex: 1;
+            position: relative;
+        }
+
+        /* --- Views Logic --- */
+        .view {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .view.active {
+            display: block;
+        }
+
+        /* --- Announcement Box --- */
+        .announcement-box {
+            background: #ffffff;
+            color: #1a2027;
+            border-radius: var(--radius);
+            padding: 16px;
+            margin-bottom: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            box-shadow: var(--shadow);
+        }
+
+        .announcement-text {
+            font-size: 0.95rem;
+            line-height: 1.4;
+            font-weight: 500;
+        }
+
+        .btn-white {
+            background: var(--accent-blue);
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            text-align: center;
+        }
+
+        .btn-white:hover {
+            background: #2563eb;
+        }
+
+        /* --- Server Selection --- */
+        .section-title {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .server-list {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .server-btn {
+            background: #1f2937;
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 16px;
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: left;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .server-btn:hover {
+            border-color: var(--accent-green);
+            background: #25303f;
+        }
+
+        .server-btn.active {
+            background: linear-gradient(90deg, #1a2027 0%, #263529 100%);
+            border-color: var(--accent-green);
+            box-shadow: 0 0 10px rgba(80, 196, 123, 0.2);
+        }
+
+        .server-btn.active::after {
+            content: "✓";
+            color: var(--accent-green);
+        }
+
+        /* --- Donation Form --- */
+        .donation-form {
+            background: var(--bg-card);
+            padding: 20px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            display: none; /* Hidden by default */
+        }
+
+        .donation-form.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            color: white;
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 1rem;
+            outline: none;
+            transition: border 0.2s;
+        }
+
+        .form-input:focus, .form-select:focus {
+            border-color: var(--accent-green);
+        }
+
+        /* Style select dropdown arrow */
+        .form-select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%239ca3af' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 12px;
+            padding-right: 36px;
+            appearance: none;
+        }
+
+        .btn-buy {
+            width: 100%;
+            background: var(--accent-green);
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: var(--radius);
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 10px;
+            box-shadow: 0 4px 14px rgba(80, 196, 123, 0.3);
+            transition: transform 0.1s, background 0.2s;
+        }
+
+        .btn-buy:active {
+            transform: scale(0.98);
+        }
+
+        .btn-buy:hover {
+            background: var(--accent-green-hover);
+        }
+
+        /* --- Payment Page Styles --- */
+        .payment-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .btn-back {
+            background: transparent;
+            border: none;
+            color: var(--accent-blue);
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: 600;
+        }
+
+        .timer-box {
+            background: #2d3742;
+            padding: 15px;
+            border-radius: var(--radius);
+            text-align: center;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-color);
+        }
+
+        .timer-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 5px;
+        }
+
+        .timer-display {
+            font-size: 1.5rem;
+            font-weight: 700;
+            font-family: monospace;
+            color: var(--accent-green);
+        }
+
+        .wallet-card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+
+        .wallet-label {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+        }
+
+        .wallet-address-box {
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            padding: 12px;
+            border-radius: 8px;
+            word-break: break-all;
+            font-family: monospace;
+            font-size: 0.9rem;
+            color: var(--accent-blue);
+            margin-bottom: 15px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .wallet-address-box:hover {
+            border-color: var(--accent-green);
+        }
+
+        .btn-copy {
+            background: var(--accent-green);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.2s;
+        }
+
+        .btn-copy:hover {
+            background: var(--accent-green-hover);
+        }
+
+        .btn-copy.copied {
+            background: var(--accent-blue);
+        }
+
+        /* --- Last Purchases --- */
+        .purchases-section {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px dashed var(--border-color);
+            border-radius: var(--radius);
+            padding: 20px;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .purchases-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            opacity: 0.5;
+        }
+
+        .purchases-text {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* --- Footer --- */
+        .footer {
+            width: 100%;
+            padding: 24px 16px;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            background: #000;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .footer a {
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .footer a:hover {
+            color: var(--accent-green);
+        }
+
+        /* --- Responsive Tweaks --- */
+        @media (min-width: 600px) {
+            .server-list {
+                grid-template-columns: 1fr 1fr;
+            }
+            .container {
+                padding: 24px;
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="top-bar">
+        <h1>MeloxCraft</h1>
+    </header>
+
+    <main class="container">
+        
+        <!-- Store View -->
+        <div id="storeView" class="view active">
+            <!-- Announcement -->
+            <div class="announcement-box">
+                <div class="announcement-text">
+                    🎉 <strong>Special Offer:</strong> Double XP on all ranks this weekend! Use code <strong>WEEKEND</strong> at checkout.
+                </div>
+                <button class="btn-white">Read More</button>
+            </div>
+
+            <!-- Server Selection -->
+            <div class="section-title">Select Server:</div>
+            <div class="server-list">
+                <button class="server-btn" onclick="selectServer(this, 'survival')">SERVER: SURVIVAL #1</button>
+                <button class="server-btn" onclick="selectServer(this, 'dupe')">SERVER: DUPE #2</button>
+                <button class="server-btn" onclick="selectServer(this, 'grief')">SERVER: GRIEF #3</button>
+                <button class="server-btn" onclick="selectServer(this, 'minigames')">SERVER: MINIGAMES</button>
+                <button class="server-btn" onclick="selectServer(this, 'lobby')">SERVER: LOBBY</button>
+                <button class="server-btn" onclick="selectServer(this, 'test')">SERVER: TEST</button>
+            </div>
+
+            <!-- Donation Form -->
+            <div id="donationForm" class="donation-form">
+                <div class="form-group">
+                    <label class="form-label">Nickname</label>
+                    <input type="text" class="form-input" placeholder="Enter your Minecraft nickname">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Product</label>
+                    <select class="form-select">
+                        <option value="vip">VIP — $1.00</option>
+                        <option value="premium">Premium — $2.00</option>
+                        <option value="creative">Creative — $4.00</option>
+                        <option value="moderator">Moderator — $6.00</option>
+                        <option value="admin">Admin — $7.00</option>
+                        <option value="operator">Operator — $13.00</option>
+                        <option value="creator">Creator — $21.00</option>
+                        <option value="owner">Owner — $30.00</option>
+                        <option value="potentate">Potentate — $51.00</option>
+                        <option value="sponsor">Sponsor — $70.00</option>
+                        <option value="op">OP — $121.00</option>
+                        <option value="mister">Mister — $140.00</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Payment Method</label>
+                    <select class="form-select">
+                        <option value="card">Credit / Debit Card</option>
+                        <option value="paypal">PayPal</option>
+                        <option value="apple">Apple Pay</option>
+                        <option value="google">Google Pay</option>
+                        <option value="crypto">Cryptocurrency</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Promo Code (Optional)</label>
+                    <input type="text" class="form-input" placeholder="e.g. WEEKEND">
+                </div>
+
+                <button class="btn-buy" onclick="showPaymentPage()">Buy / Pay</button>
+            </div>
+
+            <!-- Last Purchases -->
+            <div class="purchases-section">
+                <div class="purchases-icon">📦</div>
+                <p class="purchases-text">
+                    Last purchases will appear here in real-time.<br>
+                    Be the first to buy a rank!
+                </p>
+            </div>
+        </div>
+
+        <!-- Payment View -->
+        <div id="paymentView" class="view">
+            <div class="payment-header">
+                <button class="btn-back" onclick="showStoreView()">← Back</button>
+            </div>
+
+            <h2 style="margin-bottom: 20px; font-size: 1.5rem;">Complete Payment</h2>
+
+            <div class="timer-box">
+                <div class="timer-label">Time remaining to pay</div>
+                <div class="timer-display" id="countdown">10:00</div>
+            </div>
+
+            <div class="wallet-card">
+                <div class="wallet-label">Send payment to this Tron wallet:</div>
+                <div class="wallet-address-box" onclick="copyAddress()" id="addressBox">
+                    TNdKepL78EkgdmxG1UGRrwK7EtTdrebqHo
+                </div>
+                <button class="btn-copy" id="copyBtn" onclick="copyAddress()">Copy Address</button>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        &copy; 2026 MeloxCraft. All rights reserved.
+        <div class="footer-links">
+            <a href="#">Terms of Service</a>
+            <a href="#">Privacy Policy</a>
+        </div>
+    </footer>
+
+    <script>
+        // Server Selection Logic
+        function selectServer(btn, serverId) {
+            document.querySelectorAll('.server-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            const form = document.getElementById('donationForm');
+            form.classList.remove('active');
+            setTimeout(() => {
+                form.classList.add('active');
+            }, 10);
+
+            form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        // View Switching Logic
+        function showPaymentPage() {
+            document.getElementById('storeView').classList.remove('active');
+            document.getElementById('paymentView').classList.add('active');
+            startTimer();
+            window.scrollTo(0, 0);
+        }
+
+        function showStoreView() {
+            document.getElementById('paymentView').classList.remove('active');
+            document.getElementById('storeView').classList.add('active');
+            resetTimer();
+        }
+
+        // Timer Logic
+        let timeLeft = 600; // 10 minutes in seconds
+        let timerInterval;
+
+        function startTimer() {
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    document.getElementById('countdown').textContent = "00:00";
+                    document.getElementById('countdown').style.color = "#ef4444";
+                    return;
+                }
+                
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                document.getElementById('countdown').textContent = 
+                    `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                
+                timeLeft--;
+            }, 1000);
+        }
+
+        function resetTimer() {
+            clearInterval(timerInterval);
+            timeLeft = 600;
+            document.getElementById('countdown').textContent = "10:00";
+            document.getElementById('countdown').style.color = "var(--accent-green)";
+        }
+
+        // Copy Address Logic
+        function copyAddress() {
+            const address = "TNdKepL78EkgdmxG1UGRrwK7EtTdrebqHo";
+            navigator.clipboard.writeText(address).then(() => {
+                const btn = document.getElementById('copyBtn');
+                const originalText = btn.textContent;
+                
+                btn.textContent = "Copied!";
+                btn.classList.add('copied');
+                
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.classList.remove('copied');
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+            });
+        }
+    </script>
+
+</body>
+</html>
